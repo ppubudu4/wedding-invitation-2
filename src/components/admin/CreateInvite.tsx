@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { createInvitation, type InviteState } from "@/app/actions";
 import type { InviteType } from "@/lib/invitations";
@@ -23,8 +23,15 @@ export default function CreateInvite() {
   const [type, setType] = useState<InviteType>("single");
   const [origin, setOrigin] = useState("");
   const [copied, setCopied] = useState(false);
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   useEffect(() => setOrigin(window.location.origin), []);
+
+  // After a successful create, clear the fields so the form is ready for the
+  // next guest. The just-created link stays shown below for copy/share.
+  useEffect(() => {
+    if (state.status === "success") formRef.current?.reset();
+  }, [state]);
 
   const link =
     state.status === "success" && state.code
@@ -40,7 +47,7 @@ export default function CreateInvite() {
 
   return (
     <div className="invite-create">
-      <form className="invite-form" action={formAction}>
+      <form ref={formRef} className="invite-form" action={formAction}>
         <div className="field">
           <label htmlFor="invite_type">Invitation type</label>
           <div className="choice">
