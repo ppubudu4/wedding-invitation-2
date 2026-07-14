@@ -473,12 +473,11 @@ svg {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Keep the petals visible (iOS Low Power Mode / Reduce Motion triggers this),
-     but scatter them statically with no falling animation. */
+  /* iOS Low Power Mode / Reduce Motion triggers this. Keep the petals
+     gently falling (just slower/calmer) rather than stopping them, so the
+     effect still shows on phones with those settings on. */
   .petal {
-    animation: none;
-    top: var(--y);
-    opacity: 0.5;
+    animation-duration: 16s;
   }
 }
 
