@@ -192,7 +192,7 @@ svg {
 }
 
 .btn--ghost:hover {
-  --btn-bg: var(--color-card);
+  background: var(--color-paper-2);
   color: var(--color-accent-deep);
   border-color: var(--color-accent);
 }
