@@ -108,8 +108,13 @@ const inviteSchema = z
     if (val.invite_type === "single" && !val.guest_name) {
       ctx.addIssue({ code: "custom", path: ["guest_name"], message: "Enter the guest's name." });
     }
-    if (val.invite_type === "couple" && !val.last_name) {
-      ctx.addIssue({ code: "custom", path: ["last_name"], message: "Enter the couple's surname." });
+    if (val.invite_type === "couple") {
+      if (!val.last_name) {
+        ctx.addIssue({ code: "custom", path: ["last_name"], message: "Enter the couple's surname." });
+      }
+      if (!val.first_name) {
+        ctx.addIssue({ code: "custom", path: ["first_name"], message: "Enter a first name (for your reference)." });
+      }
     }
     if (val.invite_type === "family") {
       if (!val.title) ctx.addIssue({ code: "custom", path: ["title"], message: "Choose a title." });
@@ -166,7 +171,9 @@ export async function createInvitation(
     invite_type: type,
     guest_name: type === "single" ? v.guest_name : null,
     title: type === "family" ? v.title || null : null,
-    first_name: type === "family" ? v.first_name : null,
+    // first_name is the head-of-family name for family invites, and an
+    // admin-only identifier for couples (never shown publicly).
+    first_name: type === "single" ? null : v.first_name || null,
     last_name: type === "single" ? null : v.last_name,
     max_party: MAX_PARTY[type],
   });

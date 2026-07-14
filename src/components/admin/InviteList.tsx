@@ -10,6 +10,7 @@ export type InviteRowView = {
   code: string;
   type: string;
   greeting: string;
+  adminNote: string | null;
   responded: boolean;
   attending: boolean | null;
   party: number | null;
@@ -75,7 +76,12 @@ export default function InviteList({ items }: { items: InviteRowView[] }) {
         <tbody>
           {items.map((it) => (
             <tr key={it.id}>
-              <td>{it.greeting}</td>
+              <td>
+                {it.greeting}
+                {it.adminNote && (
+                  <span className="invite-note"> · {it.adminNote}</span>
+                )}
+              </td>
               <td style={{ textTransform: "capitalize" }}>{it.type}</td>
               <td>
                 {it.responded ? (

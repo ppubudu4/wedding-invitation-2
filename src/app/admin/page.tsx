@@ -46,6 +46,9 @@ export default async function AdminDashboard() {
       code: inv.code,
       type: inv.invite_type,
       greeting: inviteGreeting(inv),
+      // Couples share a surname-only greeting, so show the admin-only first
+      // name to tell same-surname couples apart.
+      adminNote: inv.invite_type === "couple" ? inv.first_name : null,
       responded: !!resp,
       attending: resp ? resp.attending : null,
       party: resp ? resp.party_size : null,

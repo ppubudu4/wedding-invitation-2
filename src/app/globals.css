@@ -1482,3 +1482,8 @@ table.rsvps tr:last-child td { border-bottom: none; }
   background: color-mix(in oklch, var(--color-gold) 40%, var(--color-card));
   color: var(--color-accent-deep);
 }
+
+.invite-note {
+  color: var(--color-muted);
+  font-style: italic;
+}

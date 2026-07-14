@@ -67,11 +67,21 @@ export default function CreateInvite() {
         )}
 
         {type === "couple" && (
-          <div className="field">
-            <label htmlFor="last_name_couple">Surname</label>
-            <input id="last_name_couple" name="last_name" type="text" placeholder="e.g. Silva" />
-            <span className="field__hint">Shows as “Mr &amp; Mrs Silva”.</span>
-          </div>
+          <>
+            <div className="field">
+              <label htmlFor="last_name_couple">Surname</label>
+              <input id="last_name_couple" name="last_name" type="text" placeholder="e.g. Silva" />
+              <span className="field__hint">Shows as “Mr &amp; Mrs Silva”.</span>
+            </div>
+            <div className="field">
+              <label htmlFor="first_name_couple">First name (for your reference)</label>
+              <input id="first_name_couple" name="first_name" type="text" placeholder="e.g. Kamal" />
+              <span className="field__hint">
+                Not shown on the invitation — only in this dashboard, so you can
+                tell couples with the same surname apart.
+              </span>
+            </div>
+          </>
         )}
 
         {type === "family" && (
