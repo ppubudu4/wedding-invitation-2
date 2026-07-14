@@ -57,6 +57,12 @@ export default async function AdminDashboard() {
 
   const respondedCount = inviteRows.filter((i) => i.responded).length;
 
+  // invitation_id -> first name, for the CSV export column.
+  const firstNames: Record<string, string> = {};
+  for (const inv of invites) {
+    if (inv.first_name) firstNames[inv.id] = inv.first_name;
+  }
+
   return (
     <main className="admin shell">
       <div className="admin__head">
@@ -65,7 +71,7 @@ export default async function AdminDashboard() {
           <h1 className="admin__title">Admin Dashboard</h1>
         </div>
         <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap" }}>
-          <ExportCsvButton rows={rows} />
+          <ExportCsvButton rows={rows} firstNames={firstNames} />
           <SignOutButton />
         </div>
       </div>
@@ -131,7 +137,6 @@ export default async function AdminDashboard() {
                   <th>Name</th>
                   <th>Attending</th>
                   <th>Guests</th>
-                  <th>Dietary</th>
                   <th>Message</th>
                   <th>Submitted</th>
                 </tr>
@@ -146,7 +151,6 @@ export default async function AdminDashboard() {
                       </span>
                     </td>
                     <td>{r.attending ? r.party_size : "—"}</td>
-                    <td>{r.dietary || "—"}</td>
                     <td>{r.message || "—"}</td>
                     <td>{new Date(r.created_at).toLocaleString()}</td>
                   </tr>

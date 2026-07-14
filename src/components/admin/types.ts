@@ -4,7 +4,6 @@ export type Rsvp = {
   name: string;
   attending: boolean;
   party_size: number;
-  dietary: string | null;
   message: string | null;
   invitation_id: string | null;
 };

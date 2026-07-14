@@ -19,7 +19,6 @@ const rsvpSchema = z.object({
     errorMap: () => ({ message: "Please let us know if you can attend." }),
   }),
   party_size: z.coerce.number().int().min(1).max(30),
-  dietary: z.string().trim().max(500).optional().or(z.literal("")),
   message: z.string().trim().max(1000).optional().or(z.literal("")),
   invitation_id: z.string().uuid().optional().or(z.literal("")),
 });
@@ -38,7 +37,6 @@ export async function submitRsvp(
     name: formData.get("name"),
     attending: formData.get("attending"),
     party_size: formData.get("party_size") || 1,
-    dietary: formData.get("dietary") ?? "",
     message: formData.get("message") ?? "",
     invitation_id: formData.get("invitation_id") ?? "",
   });
@@ -64,7 +62,6 @@ export async function submitRsvp(
     name: data.name,
     attending,
     party_size: attending ? data.party_size : 1,
-    dietary: data.dietary ? data.dietary : null,
     message: data.message ? data.message : null,
     invitation_id: data.invitation_id ? data.invitation_id : null,
   });

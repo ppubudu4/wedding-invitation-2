@@ -118,18 +118,6 @@ export default function RsvpForm({ invite }: { invite?: InviteView }) {
         </div>
       )}
 
-      {attending === "yes" && (
-        <div className="field">
-          <label htmlFor="dietary">Dietary notes (optional)</label>
-          <input
-            id="dietary"
-            name="dietary"
-            type="text"
-            placeholder="Allergies, vegetarian, etc."
-          />
-        </div>
-      )}
-
       <div className="field">
         <label htmlFor="message">A wish for the couple (optional)</label>
         <textarea
