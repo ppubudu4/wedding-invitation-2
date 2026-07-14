@@ -1466,3 +1466,67 @@ table.rsvps tr:last-child td { border-bottom: none; }
   color: var(--color-muted);
   font-style: italic;
 }
+
+/* Invitations table -> cards on mobile, so the Copy/WhatsApp buttons are
+   reachable without scrolling the table sideways. */
+@media (max-width: 640px) {
+  .invites-wrap {
+    border: none;
+    background: transparent;
+    overflow: visible;
+  }
+  table.invites {
+    min-width: 0;
+  }
+  table.invites thead {
+    display: none;
+  }
+  table.invites,
+  table.invites tbody {
+    display: block;
+    width: 100%;
+  }
+  table.invites tr {
+    display: block;
+    background: var(--color-card);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-sm) var(--space-md);
+    margin-bottom: var(--space-md);
+  }
+  table.invites td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: 0.5rem 0;
+    border: none;
+    border-bottom: var(--rule-hair) solid var(--color-rule-2);
+    text-align: right;
+  }
+  table.invites td::before {
+    content: attr(data-label);
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-align: left;
+  }
+  table.invites .share-cell {
+    flex-direction: row;
+    gap: var(--space-lg);
+  }
+  table.invites .invite-delete-cell {
+    justify-content: flex-end;
+    border-bottom: none;
+    padding-top: var(--space-sm);
+  }
+  /* Bigger tap targets for the share/delete links on mobile. */
+  table.invites .linkbtn {
+    padding: 0.35rem 0;
+    font-size: var(--text-sm);
+  }
+}

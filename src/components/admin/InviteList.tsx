@@ -61,8 +61,8 @@ export default function InviteList({ items }: { items: InviteRowView[] }) {
   }
 
   return (
-    <div className="table-wrap">
-      <table className="rsvps">
+    <div className="table-wrap invites-wrap">
+      <table className="rsvps invites">
         <thead>
           <tr>
             <th>Invitation</th>
@@ -76,14 +76,16 @@ export default function InviteList({ items }: { items: InviteRowView[] }) {
         <tbody>
           {items.map((it) => (
             <tr key={it.id}>
-              <td>
+              <td data-label="Invitation">
                 {it.greeting}
                 {it.adminNote && (
                   <span className="invite-note"> · {it.adminNote}</span>
                 )}
               </td>
-              <td style={{ textTransform: "capitalize" }}>{it.type}</td>
-              <td>
+              <td data-label="Type" style={{ textTransform: "capitalize" }}>
+                {it.type}
+              </td>
+              <td data-label="Status">
                 {it.responded ? (
                   <span className={`pill ${it.attending ? "pill--yes" : "pill--no"}`}>
                     {it.attending ? "Accepted" : "Declined"}
@@ -92,11 +94,13 @@ export default function InviteList({ items }: { items: InviteRowView[] }) {
                   <span className="pill pill--wait">Pending</span>
                 )}
               </td>
-              <td>{it.responded && it.attending ? it.party ?? 1 : "—"}</td>
-              <td>
+              <td data-label="Guests">
+                {it.responded && it.attending ? it.party ?? 1 : "—"}
+              </td>
+              <td data-label="Share">
                 <ShareActions code={it.code} greeting={it.greeting} />
               </td>
-              <td>
+              <td className="invite-delete-cell">
                 <form action={deleteInvitation.bind(null, it.id)}>
                   <button
                     type="submit"
