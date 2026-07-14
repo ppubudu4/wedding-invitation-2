@@ -57,14 +57,10 @@ function Bloom(pos: Pos) {
 export async function renderOgCard(greeting?: string) {
   const { groom, bride, dateLabel, venue } = wedding;
 
-  const [cardoRegular, cardoBold] = await Promise.all([
-    fetch(new URL("./fonts/cardo-regular.ttf", import.meta.url)).then((r) =>
-      r.arrayBuffer()
-    ),
-    fetch(new URL("./fonts/cardo-bold.ttf", import.meta.url)).then((r) =>
-      r.arrayBuffer()
-    ),
-  ]);
+  // Single font keeps the edge bundle under Vercel's 1 MB limit.
+  const cardo = await fetch(
+    new URL("./fonts/cardo-regular.ttf", import.meta.url)
+  ).then((r) => r.arrayBuffer());
 
   const topLine = greeting
     ? `You're invited — Dear ${greeting}`
@@ -119,7 +115,6 @@ export async function renderOgCard(greeting?: string) {
             style={{
               display: "flex",
               fontSize: 116,
-              fontWeight: 700,
               color: C.ink,
               lineHeight: 1.05,
             }}
@@ -161,10 +156,7 @@ export async function renderOgCard(greeting?: string) {
     ),
     {
       ...OG_SIZE,
-      fonts: [
-        { name: "Cardo", data: cardoRegular, weight: 400, style: "normal" },
-        { name: "Cardo", data: cardoBold, weight: 700, style: "normal" },
-      ],
+      fonts: [{ name: "Cardo", data: cardo, weight: 400, style: "normal" }],
     }
   );
 }
