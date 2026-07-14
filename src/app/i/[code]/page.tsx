@@ -13,11 +13,10 @@ export async function generateMetadata({
   const invitation = await getInvitationByCode(params.code);
   const greeting = invitation ? inviteGreeting(invitation) : undefined;
 
-  const title = greeting
-    ? `${greeting}, you're invited — Pubudu & Chaya`
-    : "You're invited — Pubudu & Chaya";
-  const description =
-    "Join us on Sunday, 27 September 2026 at Saminro Grand Palace, Makola. Tap to view the invitation and RSVP.";
+  const title = "Pubudu & Chaya — Wedding Invitation";
+  const description = greeting
+    ? `Dear ${greeting}, you're warmly invited to celebrate the wedding of Pubudu & Chaya on Sunday, 27 September 2026 at Saminro Grand Palace. Kindly RSVP.`
+    : "You're warmly invited to celebrate the wedding of Pubudu & Chaya on Sunday, 27 September 2026 at Saminro Grand Palace. Kindly RSVP.";
 
   return {
     title,

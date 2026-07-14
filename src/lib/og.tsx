@@ -63,7 +63,7 @@ export async function renderOgCard(greeting?: string) {
   ).then((r) => r.arrayBuffer());
 
   const topLine = greeting
-    ? `You're invited — Dear ${greeting}`
+    ? `Dear ${greeting}, you're warmly invited`
     : "THE WEDDING OF";
 
   return new ImageResponse(
