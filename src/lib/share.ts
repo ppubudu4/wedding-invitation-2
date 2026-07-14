@@ -9,17 +9,17 @@ export function whatsappShareUrl(link: string, greeting?: string): string {
   const salutation = greeting ? `Dear ${greeting},\n\n` : "";
   // Emojis are written as ASCII \u escapes on purpose: raw emoji bytes can be
   // corrupted (to the replacement char) by editor/git/build encoding steps.
-  // \u{...} always resolves to the correct code point.
-  const sparkles = "\u{2728}"; // sparkles
-  const ring = "\u{1F48D}"; // ring
-  const heart = "\u{2764}\u{FE0F}"; // red heart
+  // These are single-code-point emojis (no variation selectors) for the widest
+  // rendering support.
+  const flowers = "\u{1F490}"; // bouquet
+  const hearts = "\u{1F495}"; // two hearts
   const text =
     `${salutation}` +
     `Every love story is beautiful, and ours is about to begin its next ` +
     `chapter. We warmly invite you to celebrate our wedding day and share in ` +
     `the joy, laughter, and love that make this moment so special. ` +
-    `${sparkles}${ring}\n\n` +
+    `${flowers}\n\n` +
     `${link}\n\n` +
-    `With all our love,\n${groom.name} & ${bride.name} ${heart}`;
+    `With all our love,\n${groom.name} & ${bride.name} ${hearts}`;
   return `https://wa.me/?text=${encodeURIComponent(text)}`;
 }
