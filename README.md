@@ -94,6 +94,26 @@ There's a single form on the site — the **RSVP form**. When a guest fills in t
 
 Wishes are **meant to be shared**, so RLS on the `wishes` table allows anyone to read them. There's no moderation step; to add approval-before-display later, add an `approved boolean` column to `wishes` and filter on it in `WishesWall.tsx`.
 
-## Deploy
+## Deploy to Vercel
 
-Deploy to any Next.js host (e.g. Vercel). Add the two `NEXT_PUBLIC_SUPABASE_*` environment variables in the host's project settings. No other server secrets are required.
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fppubudu4%2Fwedding-invitation-2&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_SITE_URL&envDescription=Supabase%20URL%20%2B%20anon%20key%2C%20and%20your%20site%20URL&project-name=wedding-invitation&repository-name=wedding-invitation)
+
+**Import the existing repo (recommended):**
+
+1. Go to **[vercel.com/new](https://vercel.com/new)** and sign in with GitHub.
+2. **Import** `ppubudu4/wedding-invitation-2`. Vercel auto-detects Next.js — leave the build settings at their defaults.
+3. Under **Environment Variables**, add:
+   | Name | Value |
+   | --- | --- |
+   | `NEXT_PUBLIC_SUPABASE_URL` | your Supabase Project URL |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your Supabase anon public key |
+   | `NEXT_PUBLIC_SITE_URL` | *(optional now)* your final URL, e.g. `https://pubudu-chaya.vercel.app` |
+4. Click **Deploy**.
+
+**After the first deploy:**
+
+- Copy the live URL Vercel gives you, set it as `NEXT_PUBLIC_SITE_URL` in **Project → Settings → Environment Variables**, then **Redeploy**. This makes WhatsApp/social link previews use your real domain. (Until you set it, the app falls back to Vercel's deployment URL automatically, so previews still work.)
+- Make sure the Supabase schema (`supabase/schema.sql`) has been run and an admin user exists (see steps 3–4 above).
+- Every `git push` to `main` triggers an automatic redeploy.
+
+No server-only secrets are required — the two `NEXT_PUBLIC_SUPABASE_*` values are all the app needs (row-level security keeps RSVP data private).

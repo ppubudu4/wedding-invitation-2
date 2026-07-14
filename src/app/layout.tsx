@@ -24,7 +24,11 @@ const caveat = Caveat({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000");
 const title = "Pubudu & Chaya · 27 September 2026";
 const description =
   "Join us as we celebrate the wedding of Pubudu & Chaya on 27 September 2026 at Saminro Grand Palace, Makola, Sri Lanka.";
