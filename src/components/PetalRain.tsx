@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Petal } from "./ornaments/Ornaments";
 
 const COUNT = 16;
@@ -10,44 +10,100 @@ const COLORS = [
   "var(--color-rose-deep)",
 ];
 
-/** Deterministic pseudo-random in [0,1) from an index + seed. */
-function rnd(i: number, seed: number): number {
-  const v = Math.sin((i + 1) * seed) * 10000;
-  return v - Math.floor(v);
-}
+type Cfg = { size: number; color: string };
+type State = {
+  x: number;
+  y: number;
+  rot: number;
+  rotSpeed: number;
+  vy: number;
+  amp: number;
+  freq: number;
+  phase: number;
+};
 
 /**
- * A gentle, continuous rain of rose petals across the viewport.
- * Purely decorative (pointer-events: none); hidden under prefers-reduced-motion.
+ * Rose-petal rain driven by requestAnimationFrame (not CSS animation).
+ * rAF keeps running under iOS Low Power Mode / Reduce Motion, where CSS
+ * animations are paused — so the petals actually move on phones too.
  */
 export default function PetalRain() {
-  const [mounted, setMounted] = useState(false);
+  const [cfgs, setCfgs] = useState<Cfg[] | null>(null);
+  const els = useRef<Array<HTMLSpanElement | null>>([]);
+  const state = useRef<State[]>([]);
 
-  // Render only after mount so it never blocks first paint or SSR.
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return null;
+  // Build petals on the client only (avoids SSR/hydration mismatch).
+  useEffect(() => {
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const cfg: Cfg[] = [];
+    const st: State[] = [];
+    for (let i = 0; i < COUNT; i++) {
+      cfg.push({ size: 12 + Math.random() * 12, color: COLORS[i % COLORS.length] });
+      st.push({
+        x: Math.random() * W,
+        y: Math.random() * H, // start scattered so they're visible immediately
+        rot: Math.random() * 360,
+        rotSpeed: Math.random() * 60 - 30,
+        vy: 32 + Math.random() * 46, // px per second
+        amp: 20 + Math.random() * 40, // horizontal sway amplitude
+        freq: 0.2 + Math.random() * 0.5,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
+    state.current = st;
+    setCfgs(cfg);
+  }, []);
+
+  useEffect(() => {
+    if (!cfgs) return;
+    let raf = 0;
+    let last = performance.now();
+
+    const tick = (now: number) => {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      const H = window.innerHeight;
+      const W = window.innerWidth;
+
+      for (let i = 0; i < state.current.length; i++) {
+        const p = state.current[i];
+        p.y += p.vy * dt;
+        p.rot += p.rotSpeed * dt;
+        p.phase += p.freq * dt;
+        if (p.y > H + 40) {
+          p.y = -40;
+          p.x = Math.random() * W;
+        }
+        const el = els.current[i];
+        if (el) {
+          const dx = Math.sin(p.phase) * p.amp;
+          el.style.transform = `translate3d(${p.x + dx}px, ${p.y}px, 0) rotate(${p.rot}deg)`;
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [cfgs]);
+
+  if (!cfgs) return null;
 
   return (
     <div className="petal-rain" aria-hidden="true">
-      {Array.from({ length: COUNT }).map((_, i) => {
-        const size = 12 + Math.round(rnd(i, 12.9) * 12); // 12–24px
-        const style = {
-          ["--x" as string]: `${Math.round(rnd(i, 78.2) * 100)}vw`,
-          ["--y" as string]: `${Math.round(rnd(i, 61.3) * 92)}vh`,
-          ["--size" as string]: `${size}px`,
-          ["--dur" as string]: `${9 + Math.round(rnd(i, 33.1) * 9)}s`,
-          ["--delay" as string]: `${-Math.round(rnd(i, 51.4) * 12)}s`,
-          ["--drift" as string]: `${Math.round((rnd(i, 5.7) - 0.5) * 160)}px`,
-        } as React.CSSProperties;
-        return (
-          <Petal
-            key={i}
-            className="petal"
-            color={COLORS[i % COLORS.length]}
-            style={style}
-          />
-        );
-      })}
+      {cfgs.map((c, i) => (
+        <span
+          key={i}
+          ref={(el) => {
+            els.current[i] = el;
+          }}
+          className="petal-js"
+          style={{ width: `${c.size}px` }}
+        >
+          <Petal color={c.color} />
+        </span>
+      ))}
     </div>
   );
 }
