@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
-import { anonClient } from "@/lib/supabase/anon";
 import Invitation from "@/components/Invitation";
-import {
-  inviteGreeting,
-  toInviteView,
-  type Invitation as InviteRow,
-} from "@/lib/invitations";
+import { getInvitationByCode } from "@/lib/supabase/rest";
+import { inviteGreeting, toInviteView } from "@/lib/invitations";
 
 export const dynamic = "force-dynamic";
 
@@ -15,16 +10,8 @@ export async function generateMetadata({
 }: {
   params: { code: string };
 }): Promise<Metadata> {
-  const { code } = params;
-  let greeting: string | undefined;
-  try {
-    const { data } = await anonClient()
-      .rpc("get_invitation", { p_code: code })
-      .maybeSingle();
-    if (data) greeting = inviteGreeting(data as InviteRow);
-  } catch {
-    // fall back to defaults below
-  }
+  const invitation = await getInvitationByCode(params.code);
+  const greeting = invitation ? inviteGreeting(invitation) : undefined;
 
   const title = greeting
     ? `${greeting}, you're invited — Pubudu & Chaya`
@@ -45,15 +32,8 @@ export default async function PersonalizedInvite({
 }: {
   params: { code: string };
 }) {
-  const { code } = params;
-  const supabase = await createClient();
-
-  const { data } = await supabase
-    .rpc("get_invitation", { p_code: code })
-    .maybeSingle();
-
-  const row = data as InviteRow | null;
-  const invite = row ? toInviteView(row) : undefined;
+  const invitation = await getInvitationByCode(params.code);
+  const invite = invitation ? toInviteView(invitation) : undefined;
 
   // A missing/expired code still shows the beautiful generic invitation.
   return <Invitation invite={invite} />;

@@ -1,6 +1,6 @@
 import { renderOgCard, OG_SIZE } from "@/lib/og";
-import { anonClient } from "@/lib/supabase/anon";
-import { inviteGreeting, type Invitation } from "@/lib/invitations";
+import { getInvitationByCode } from "@/lib/supabase/rest";
+import { inviteGreeting } from "@/lib/invitations";
 
 export const runtime = "edge";
 export const alt = "You're invited — Pubudu & Chaya's Wedding";
@@ -12,14 +12,7 @@ export default async function Image({
 }: {
   params: { code: string };
 }) {
-  let greeting: string | undefined;
-  try {
-    const { data } = await anonClient()
-      .rpc("get_invitation", { p_code: params.code })
-      .maybeSingle();
-    if (data) greeting = inviteGreeting(data as Invitation);
-  } catch {
-    // Fall back to the generic card if the lookup fails.
-  }
+  const invitation = await getInvitationByCode(params.code);
+  const greeting = invitation ? inviteGreeting(invitation) : undefined;
   return renderOgCard(greeting);
 }
