@@ -54,10 +54,10 @@ export const wedding = {
   // Drop real photos into /public/gallery and set `src` (e.g. "/gallery/1.jpg").
   // Leave `src` empty ("") to show an elegant placeholder frame.
   gallery: [
-    { src: "", caption: "Where it began" },
-    { src: "", caption: "Every little moment" },
-    { src: "", caption: "The proposal" },
-    { src: "", caption: "Forever, from here" },
+    { src: "/gallery/1.jpeg", caption: "Where it began" },
+    { src: "/gallery/2.jpeg", caption: "Every little moment" },
+    { src: "/gallery/3.jpeg", caption: "The proposal" },
+    { src: "/gallery/4.jpeg", caption: "Forever, from here" },
   ],
 } as const;
 
