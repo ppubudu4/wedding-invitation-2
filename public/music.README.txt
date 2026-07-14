@@ -1,0 +1,12 @@
+Background music placeholder
+============================
+
+Put your chosen track here as:  music.mp3
+
+  wedding-invitation/public/music.mp3
+
+The floating music button on the invitation plays this file. It starts only
+when a guest taps the button (browsers block autoplay).
+
+Only use audio you have the right to use. Until you add music.mp3, the button
+still appears but has nothing to play.

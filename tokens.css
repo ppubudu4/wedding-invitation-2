@@ -1,0 +1,106 @@
+/* Hallmark · genre: editorial · macrostructure: Marquee Hero · nav: N5 · footer: Ft5
+ * theme: custom · vibe: "lily & roses, blush-rose, sage-green, ivory, petal-rain, ceremonial"
+ * paper: oklch(98.5% 0.006 60) (warm ivory) · accent: oklch(60% 0.14 15) (rose)
+ * display: Cormorant Garamond (+ italic names) · body: Mulish · accent-hand: Caveat
+ * axes: light / roman-serif / warm
+ * studied: yes · DNA-source: image (user reference) · context: user-provided
+ * Portable design tokens — consumed by name in globals.css. Never inline raw color values.
+ */
+:root {
+  /* — Paper (warm ivory) — */
+  --color-paper: oklch(98.5% 0.006 60);
+  --color-paper-2: oklch(97.2% 0.012 45); /* soft cream band for alternating sections */
+  --color-paper-3: oklch(99.3% 0.003 60);
+  --color-card: oklch(99.6% 0.002 60);
+
+  /* — Ink (deep rose-charcoal) — */
+  --color-ink: oklch(34% 0.035 355);
+  --color-ink-2: oklch(48% 0.03 356);
+
+  /* — Supporting greys (warm-tinted) — */
+  --color-rule: oklch(90% 0.012 20);
+  --color-rule-2: oklch(94% 0.008 30);
+  --color-muted: oklch(60% 0.03 356);
+  --color-neutral: oklch(54% 0.03 356);
+
+  /* — Accent (rose) — */
+  --color-accent: oklch(60% 0.14 15);
+  --color-accent-deep: oklch(48% 0.14 14);
+  --color-accent-ink: oklch(99% 0.004 60); /* text on accent fill (accent is mid-L) */
+  --color-focus: oklch(58% 0.17 15);
+
+  /* — Botanical secondaries — roses, lily, foliage — */
+  --color-rose: oklch(72% 0.13 12);
+  --color-rose-deep: oklch(58% 0.16 12);
+  --color-blush: oklch(89% 0.045 14);
+  --color-blush-deep: oklch(76% 0.09 12);
+  --color-sage: oklch(70% 0.055 150);
+  --color-sage-deep: oklch(55% 0.07 152);
+  --color-lily: oklch(98% 0.012 92); /* creamy white lily petal */
+  --color-gold: oklch(84% 0.09 88); /* lily centre / stamen */
+
+  /* — Footer (deep rose-burgundy gradient) — */
+  --color-footer-top: oklch(40% 0.09 12);
+  --color-footer-bottom: oklch(29% 0.07 14);
+  --color-footer-ink: oklch(97% 0.01 60);
+
+  /* — Semantic states — */
+  --color-success: oklch(60% 0.10 165);
+  --color-danger: oklch(58% 0.15 25);
+
+  /* — WhatsApp brand (share button only) — */
+  --color-wa: oklch(72% 0.17 152);
+  --color-wa-deep: oklch(62% 0.16 152);
+
+  /* — Type families (wired via next/font in layout.tsx) — */
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-body: var(--font-mulish), "Mulish", "Segoe UI", system-ui, sans-serif;
+  --font-hand: var(--font-caveat), "Caveat", "Segoe Script", cursive;
+
+  /* — Type scale — */
+  --text-xs: 0.72rem;
+  --text-sm: 0.85rem;
+  --text-base: 1rem;
+  --text-lg: 1.2rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.75rem;
+  --text-4xl: 3.75rem;
+  --text-display-s: clamp(2.75rem, 8vw, 5rem);
+  --text-display: clamp(3.25rem, 11vw, 7rem);
+
+  /* — Spacing (4pt scale) — */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6.5rem;
+  --space-4xl: 10rem;
+
+  /* — Rules & radii — */
+  --rule-hair: 1px;
+  --radius-sm: 6px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  /* — Elevation — */
+  --shadow-sm: 0 4px 16px color-mix(in oklch, var(--color-ink) 8%, transparent);
+  --shadow-md: 0 14px 40px color-mix(in oklch, var(--color-ink) 12%, transparent);
+
+  /* — Motion — */
+  --dur-fast: 160ms;
+  --dur-med: 320ms;
+  --dur-slow: 640ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* — Layout — */
+  --measure: 62ch;
+  --page-max: 1120px;
+  --content-max: 760px;
+}
