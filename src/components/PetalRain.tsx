@@ -33,6 +33,7 @@ export default function PetalRain() {
         const size = 12 + Math.round(rnd(i, 12.9) * 12); // 12–24px
         const style = {
           ["--x" as string]: `${Math.round(rnd(i, 78.2) * 100)}vw`,
+          ["--y" as string]: `${Math.round(rnd(i, 61.3) * 92)}vh`,
           ["--size" as string]: `${size}px`,
           ["--dur" as string]: `${9 + Math.round(rnd(i, 33.1) * 9)}s`,
           ["--delay" as string]: `${-Math.round(rnd(i, 51.4) * 12)}s`,

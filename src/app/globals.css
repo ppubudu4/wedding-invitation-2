@@ -473,8 +473,12 @@ svg {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .petal-rain {
-    display: none;
+  /* Keep the petals visible (iOS Low Power Mode / Reduce Motion triggers this),
+     but scatter them statically with no falling animation. */
+  .petal {
+    animation: none;
+    top: var(--y);
+    opacity: 0.5;
   }
 }
 
