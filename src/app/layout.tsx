@@ -51,6 +51,11 @@ export const metadata: Metadata = {
   metadataBase: siteUrl,
   title,
   description,
+  icons: {
+    icon: "/rose.png",
+    shortcut: "/rose.png",
+    apple: "/rose.png",
+  },
   openGraph: {
     title,
     description,
