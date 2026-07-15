@@ -10,7 +10,7 @@ export const wedding = {
   // Wedding date & time (Sri Lanka time, +05:30). Used by the countdown,
   // the displayed date, and the Add-to-Calendar links.
   dateISO: "2026-09-27T09:00:00+05:30",
-  dateEndISO: "2026-09-27T16:00:00+05:30",
+  dateEndISO: "2026-09-27T15:51:00+05:30",
   dateLabel: "Sunday, 27 September 2026",
   weekday: "Sunday",
   timeLabel: "9.00 AM",
@@ -34,7 +34,7 @@ export const wedding = {
       note: "Join us in the Crystal Ballroom for a celebratory feast as we share our first meal as a married couple.",
     },
     {
-      time: "4:00 PM",
+      time: "3:51 PM",
       event: "Going Away",
       note: "Surrounded by love and warm blessings, we take our leave and step into our new beginning.",
     },

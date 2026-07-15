@@ -31,6 +31,9 @@ export default function Hero({ greeting }: { greeting?: string }) {
         </p>
         <p className="hero__venue">{venue.name}</p>
         <p className="hero__tagline">{tagline}</p>
+        <a className="btn hero__cta" href="#rsvp">
+          RSVP
+        </a>
       </div>
 
       <a className="hero__scroll" href="#countdown">
