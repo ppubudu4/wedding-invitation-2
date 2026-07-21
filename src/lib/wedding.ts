@@ -9,22 +9,22 @@ export const wedding = {
 
   // Wedding date & time (Sri Lanka time, +05:30). Used by the countdown,
   // the displayed date, and the Add-to-Calendar links.
-  dateISO: "2026-09-27T09:00:00+05:30",
+  dateISO: "2026-09-27T08:45:00+05:30",
   dateEndISO: "2026-09-27T15:51:00+05:30",
   dateLabel: "Sunday, 27 September 2026",
   weekday: "Sunday",
-  timeLabel: "9.00 AM",
+  timeLabel: "8.45 AM",
 
   tagline: "With every heart guided by love, and every breath full of grace.",
 
   timeline: [
     {
-      time: "9:00 AM",
+      time: "8:45 AM",
       event: "Guests Arrive",
       note: "A warm welcome as our families gather to begin the day.",
     },
     {
-      time: "9:30 AM",
+      time: "9:01 AM",
       event: "Poruwa Ceremony",
       note: "Our traditional Poruwa ritual — the tying of two families into one, blessed by the elders.",
     },
