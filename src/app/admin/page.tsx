@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Rsvp } from "@/components/admin/types";
+import type { Rsvp, Wish } from "@/components/admin/types";
 import SignOutButton from "@/components/admin/SignOutButton";
 import ExportCsvButton from "@/components/admin/ExportCsvButton";
 import CreateInvite from "@/components/admin/CreateInvite";
 import InviteList, { type InviteRowView } from "@/components/admin/InviteList";
+import WishModeration from "@/components/admin/WishModeration";
 import { inviteGreeting, type Invitation } from "@/lib/invitations";
 
 export const dynamic = "force-dynamic";
@@ -19,13 +20,17 @@ export default async function AdminDashboard() {
   // Belt-and-braces (middleware also guards this route).
   if (!user) redirect("/admin/login");
 
-  const [{ data: rsvpData, error }, { data: inviteData }] = await Promise.all([
-    supabase.from("rsvps").select("*").order("created_at", { ascending: false }),
-    supabase.from("invitations").select("*").order("created_at", { ascending: false }),
-  ]);
+  const [{ data: rsvpData, error }, { data: inviteData }, { data: wishData }] =
+    await Promise.all([
+      supabase.from("rsvps").select("*").order("created_at", { ascending: false }),
+      supabase.from("invitations").select("*").order("created_at", { ascending: false }),
+      supabase.from("wishes").select("*").order("created_at", { ascending: false }),
+    ]);
 
   const rows = (rsvpData ?? []) as Rsvp[];
   const invites = (inviteData ?? []) as Invitation[];
+  const wishes = (wishData ?? []) as Wish[];
+  const pendingWishes = wishes.filter((w) => !w.approved).length;
 
   const attendingRows = rows.filter((r) => r.attending);
   const decliningCount = rows.length - attendingRows.length;
@@ -97,6 +102,25 @@ export default async function AdminDashboard() {
           </h2>
         </div>
         <InviteList items={inviteRows} />
+      </section>
+
+      {/* Wishes moderation */}
+      <section className="admin__section">
+        <div className="admin__head">
+          <h2 className="admin__h2">
+            Wishes{" "}
+            {pendingWishes > 0 && (
+              <span className="admin__count admin__count--alert">
+                {pendingWishes} pending
+              </span>
+            )}
+          </h2>
+        </div>
+        <p className="admin__lead">
+          Guests leave a wish with their RSVP. Wishes stay hidden until you
+          approve them, so nothing unwanted reaches the public wishes wall.
+        </p>
+        <WishModeration wishes={wishes} />
       </section>
 
       {/* Responses */}

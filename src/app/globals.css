@@ -873,6 +873,17 @@ svg {
   text-align: center;
 }
 
+/* Anti-spam honeypot: taken out of flow and pushed off-screen rather than
+   display:none, so bots that skip hidden fields still fill (and trip) it,
+   while remaining invisible and unfocusable for real guests. */
+.rsvp__hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .rsvp__form {
   margin-top: var(--space-2xl);
   text-align: left;
@@ -1318,6 +1329,75 @@ table.rsvps tr:last-child td { border-bottom: none; }
   margin-left: var(--space-xs);
 }
 
+/* Draws the eye when wishes are waiting for approval. */
+.admin__count--alert {
+  color: var(--color-accent-ink);
+  background: var(--color-accent);
+  padding: 0.15em 0.6em;
+  border-radius: 999px;
+}
+
+/* ------------------------------------------------------------
+   Wishes moderation
+   ------------------------------------------------------------ */
+.wish-mod__list {
+  list-style: none;
+  margin: 0 0 var(--space-lg);
+  padding: 0;
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.wish-mod__subhead {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: var(--space-lg) 0 var(--space-sm);
+}
+
+.wish-mod__card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  justify-content: space-between;
+  align-items: flex-start;
+  background: var(--color-card);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+/* Pending wishes carry an accent edge so they read as "needs attention". */
+.wish-mod__card--pending {
+  border-left: 3px solid var(--color-accent);
+}
+
+.wish-mod__body {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.wish-mod__msg {
+  margin: 0 0 var(--space-2xs);
+  overflow-wrap: anywhere;
+}
+
+.wish-mod__meta {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.wish-mod__actions {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .admin__lead {
   color: var(--color-muted);
   font-size: var(--text-sm);
@@ -1430,6 +1510,10 @@ table.rsvps tr:last-child td { border-bottom: none; }
 
 .linkbtn--danger {
   color: var(--color-danger);
+}
+
+.linkbtn--go {
+  color: var(--color-success);
 }
 
 .linkbtn--wa {

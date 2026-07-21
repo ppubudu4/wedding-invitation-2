@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { submitRsvp, type RsvpState } from "@/app/actions";
 import type { InviteView } from "@/lib/invitations";
@@ -25,6 +25,14 @@ export default function RsvpForm({ invite }: { invite?: InviteView }) {
   const [state, formAction] = useFormState(submitRsvp, initialState);
   const [attending, setAttending] = useState<"yes" | "no" | "">("");
 
+  // Anti-spam: stamp the moment the form became interactive. Set on the client
+  // (not at render) so the value is a real load time, and submissions that come
+  // back within a few seconds can be flagged as bots server-side.
+  const tsRef = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    if (tsRef.current) tsRef.current.value = String(Date.now());
+  }, []);
+
   // Single-guest invites don't need a count; couple/family (and the generic
   // page) do. On the generic page the count only shows once "attending" is yes.
   const showCount = attending === "yes" && (invite ? invite.allowCount : true);
@@ -45,6 +53,20 @@ export default function RsvpForm({ invite }: { invite?: InviteView }) {
   return (
     <form className="rsvp__form" action={formAction} noValidate>
       {invite && <input type="hidden" name="invitation_id" value={invite.id} />}
+
+      {/* Anti-spam honeypot: hidden from humans, irresistible to bots. If a
+          value comes through, the submission is dropped server-side. */}
+      <input type="hidden" name="form_ts" ref={tsRef} />
+      <div className="rsvp__hp" aria-hidden="true">
+        <label htmlFor="website">Website (leave this empty)</label>
+        <input
+          id="website"
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+        />
+      </div>
 
       <div className={`field ${state.errors?.name ? "field--error" : ""}`}>
         <label htmlFor="name">

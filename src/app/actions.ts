@@ -23,16 +23,46 @@ const rsvpSchema = z.object({
   invitation_id: z.string().uuid().optional().or(z.literal("")),
 });
 
+// Detects URLs / domains that bots inject to advertise SEO-spam services.
+// A genuine wish for the couple never needs a link, so any of these = spam:
+// an explicit scheme, a "www." prefix, or a bare "word.tld" domain token.
+const LINK_SPAM = /https?:\/\/|www\.|[a-z0-9]\.[a-z]{2,}/i;
+
+function looksLikeSpam(...values: (string | null | undefined)[]): boolean {
+  return values.some((v) => v != null && LINK_SPAM.test(v));
+}
+
 export type RsvpState = {
   status: "idle" | "success" | "error";
   message?: string;
   errors?: Partial<Record<"name" | "attending" | "party_size", string>>;
 };
 
+// Bots that survive to submission look successful (we never tell them why we
+// dropped the payload), so we return the normal success state and simply skip
+// the database write. Real guests never trip these checks.
+function silentSuccess(): RsvpState {
+  return {
+    status: "success",
+    message: "Thank you! We can't wait to celebrate with you.",
+  };
+}
+
 export async function submitRsvp(
   _prev: RsvpState,
   formData: FormData
 ): Promise<RsvpState> {
+  // 1) Honeypot: a hidden field no human ever fills. If it has a value, it's a bot.
+  if ((formData.get("website") as string | null)?.trim()) {
+    return silentSuccess();
+  }
+
+  // 2) Timing: bots submit near-instantly. Reject anything faster than 3s.
+  const startedAt = Number(formData.get("form_ts"));
+  if (Number.isFinite(startedAt) && Date.now() - startedAt < 3000) {
+    return silentSuccess();
+  }
+
   const parsed = rsvpSchema.safeParse({
     name: formData.get("name"),
     attending: formData.get("attending"),
@@ -55,6 +85,12 @@ export async function submitRsvp(
   }
 
   const data = parsed.data;
+
+  // 3) Content: a real name/wish never contains a link. Drop link spam silently.
+  if (looksLikeSpam(data.name, data.message)) {
+    return silentSuccess();
+  }
+
   const attending = data.attending === "yes";
 
   const supabase = await createClient();
@@ -199,4 +235,30 @@ export async function deleteInvitation(id: string): Promise<void> {
   if (!user) return;
   await supabase.from("invitations").delete().eq("id", id);
   revalidatePath("/admin");
+}
+
+/* ============================================================
+   Wishes moderation (admin only)
+   ============================================================ */
+
+export async function approveWish(id: string): Promise<void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from("wishes").update({ approved: true }).eq("id", id);
+  revalidatePath("/admin");
+  revalidatePath("/");
+}
+
+export async function deleteWish(id: string): Promise<void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from("wishes").delete().eq("id", id);
+  revalidatePath("/admin");
+  revalidatePath("/");
 }

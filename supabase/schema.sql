@@ -94,14 +94,21 @@ create table if not exists public.wishes (
   id          uuid primary key default gen_random_uuid(),
   created_at  timestamptz not null default now(),
   name        text not null,
-  message     text not null
+  message     text not null,
+  -- Moderation gate: wishes are hidden from the public wall until an admin
+  -- approves them, so spam that slips past the form filters never goes live.
+  approved    boolean not null default false
 );
+
+-- For existing databases created before moderation was added:
+alter table public.wishes
+  add column if not exists approved boolean not null default false;
 
 create index if not exists wishes_created_at_idx on public.wishes (created_at desc);
 
 alter table public.wishes enable row level security;
 
--- Anyone may leave a wish...
+-- Anyone may leave a wish (it lands unapproved by default)...
 drop policy if exists "public can insert wish" on public.wishes;
 create policy "public can insert wish"
   on public.wishes
@@ -110,12 +117,37 @@ create policy "public can insert wish"
   with check (char_length(name) between 1 and 120
               and char_length(message) between 1 and 1000);
 
--- ...and wishes are meant to be seen, so anyone may read them.
+-- ...but the public may only READ wishes that have been approved.
 drop policy if exists "public can read wishes" on public.wishes;
-create policy "public can read wishes"
+drop policy if exists "public can read approved wishes" on public.wishes;
+create policy "public can read approved wishes"
   on public.wishes
   for select
   to anon, authenticated
+  using (approved = true);
+
+-- Signed-in admins may read every wish (approved or pending) for moderation.
+drop policy if exists "authenticated read all wishes" on public.wishes;
+create policy "authenticated read all wishes"
+  on public.wishes
+  for select
+  to authenticated
+  using (true);
+
+-- Signed-in admins may approve (update) and remove (delete) wishes.
+drop policy if exists "authenticated update wishes" on public.wishes;
+create policy "authenticated update wishes"
+  on public.wishes
+  for update
+  to authenticated
+  using (true)
+  with check (true);
+
+drop policy if exists "authenticated delete wishes" on public.wishes;
+create policy "authenticated delete wishes"
+  on public.wishes
+  for delete
+  to authenticated
   using (true);
 
 -- ============================================================

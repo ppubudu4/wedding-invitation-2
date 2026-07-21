@@ -19,6 +19,7 @@ export default function WishesWall() {
     const { data, error } = await supabase
       .from("wishes")
       .select("id, name, message, created_at")
+      .eq("approved", true)
       .order("created_at", { ascending: false })
       .limit(60);
     if (error) {
