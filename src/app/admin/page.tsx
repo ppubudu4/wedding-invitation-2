@@ -57,10 +57,9 @@ export default async function AdminDashboard() {
       responded: !!resp,
       attending: resp ? resp.attending : null,
       party: resp ? resp.party_size : null,
+      createdBy: inv.created_by_email,
     };
   });
-
-  const respondedCount = inviteRows.filter((i) => i.responded).length;
 
   // invitation_id -> first name, for the CSV export column.
   const firstNames: Record<string, string> = {};
@@ -93,14 +92,6 @@ export default async function AdminDashboard() {
       </section>
 
       <section className="admin__section">
-        <div className="admin__head">
-          <h2 className="admin__h2">
-            Invitations{" "}
-            <span className="admin__count">
-              {respondedCount}/{invites.length} responded
-            </span>
-          </h2>
-        </div>
         <InviteList items={inviteRows} />
       </section>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { deleteInvitation } from "@/app/actions";
 import { whatsappShareUrl } from "@/lib/share";
 import WhatsAppIcon from "./WhatsAppIcon";
@@ -14,7 +14,12 @@ export type InviteRowView = {
   responded: boolean;
   attending: boolean | null;
   party: number | null;
+  createdBy: string | null;
 };
+
+const ALL = "all";
+/** Filter value for invitations created before creator attribution existed. */
+const UNATTRIBUTED = "__none__";
 
 function ShareActions({
   code,
@@ -55,11 +60,82 @@ function ShareActions({
   );
 }
 
-export default function InviteList({ items }: { items: InviteRowView[] }) {
-  if (items.length === 0) {
-    return <p className="admin__empty">No invitations yet — create one above.</p>;
-  }
+export default function InviteList({
+  items,
+}: {
+  readonly items: InviteRowView[];
+}) {
+  const [creator, setCreator] = useState<string>(ALL);
 
+  const creators = useMemo(() => {
+    const emails = new Set<string>();
+    let hasUnattributed = false;
+    for (const it of items) {
+      if (it.createdBy) emails.add(it.createdBy);
+      else hasUnattributed = true;
+    }
+    return { emails: [...emails].sort((a, b) => a.localeCompare(b)), hasUnattributed };
+  }, [items]);
+
+  // Deleting a creator's last invitation would otherwise leave the list stuck
+  // on an option that no longer exists.
+  const isSelectable =
+    creator === ALL ||
+    (creator === UNATTRIBUTED && creators.hasUnattributed) ||
+    creators.emails.includes(creator);
+  const selected = isSelectable ? creator : ALL;
+
+  const visible = items.filter((it) => {
+    if (selected === ALL) return true;
+    if (selected === UNATTRIBUTED) return !it.createdBy;
+    return it.createdBy === selected;
+  });
+
+  const respondedCount = items.filter((it) => it.responded).length;
+  const optionCount = creators.emails.length + (creators.hasUnattributed ? 1 : 0);
+
+  return (
+    <>
+      <div className="admin__head">
+        <h2 className="admin__h2">
+          Invitations{" "}
+          <span className="admin__count">
+            {respondedCount}/{items.length} responded
+          </span>
+        </h2>
+        {optionCount > 1 && (
+          <label className="invite-filter">
+            <span>Created by</span>
+            <select
+              value={selected}
+              onChange={(e) => setCreator(e.target.value)}
+            >
+              <option value={ALL}>All</option>
+              {creators.emails.map((email) => (
+                <option key={email} value={email}>
+                  {email}
+                </option>
+              ))}
+              {creators.hasUnattributed && (
+                <option value={UNATTRIBUTED}>Unattributed</option>
+              )}
+            </select>
+          </label>
+        )}
+      </div>
+
+      {items.length === 0 ? (
+        <p className="admin__empty">No invitations yet — create one above.</p>
+      ) : visible.length === 0 ? (
+        <p className="admin__empty">No invitations match this filter.</p>
+      ) : (
+        <InviteTable items={visible} />
+      )}
+    </>
+  );
+}
+
+function InviteTable({ items }: { readonly items: InviteRowView[] }) {
   return (
     <div className="table-wrap invites-wrap">
       <table className="rsvps invites">
@@ -69,6 +145,7 @@ export default function InviteList({ items }: { items: InviteRowView[] }) {
             <th>Type</th>
             <th>Status</th>
             <th>Guests</th>
+            <th>Created by</th>
             <th>Share</th>
             <th></th>
           </tr>
@@ -96,6 +173,15 @@ export default function InviteList({ items }: { items: InviteRowView[] }) {
               </td>
               <td data-label="Guests">
                 {it.responded && it.attending ? it.party ?? 1 : "—"}
+              </td>
+              <td data-label="Created by">
+                {it.createdBy ? (
+                  // The local part is enough to tell two admins apart, and a
+                  // full email is too wide for this column.
+                  <span title={it.createdBy}>{it.createdBy.split("@")[0]}</span>
+                ) : (
+                  "—"
+                )}
               </td>
               <td data-label="Share">
                 <ShareActions code={it.code} greeting={it.greeting} />

@@ -78,9 +78,10 @@ From the admin dashboard you can create a personalized invitation for each guest
 
 - The link opens the full invitation with a personalized *"Dear …"* greeting and the RSVP pre-filled with the guest's name.
 - **Single** invites don't ask for a headcount; **couple** and **family** invites show a "number of guests attending" field (couple defaults to 2).
-- Each invitation row in the dashboard shows its response status (Pending / Accepted / Declined), the headcount, a **Copy link** button, and Delete.
+- Each invitation row in the dashboard shows its response status (Pending / Accepted / Declined), the headcount, which admin created it, a **Copy link** button, and Delete.
+- With more than one admin account, a **Created by** dropdown above the list filters it to a single admin's invitations. Invitations created before this column existed show `—` and appear under *Unattributed*.
 
-Invitations are stored in the `invitations` table (admin-only) and read on the public page through a `get_invitation(code)` security-definer function — so the guest list is never publicly enumerable.
+Invitations are stored in the `invitations` table (admin-only) and read on the public page through a `get_invitation(code)` security-definer function — so the guest list is never publicly enumerable. That function blanks out `created_by_email`, so the admin's login email never reaches a guest.
 
 ### Link previews (WhatsApp sneak peek)
 

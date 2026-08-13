@@ -53,8 +53,15 @@ create table if not exists public.invitations (
   title       text,            -- family: 'Mr' | 'Mrs'
   first_name  text,            -- family: head-of-family first name
   last_name   text,            -- couple / family: surname
-  max_party   int not null default 1 check (max_party between 1 and 30)
+  max_party   int not null default 1 check (max_party between 1 and 30),
+  -- Which admin created this invitation. Admin-only (stripped from the public
+  -- read path below); null for rows created before this column existed.
+  created_by_email text
 );
+
+-- For existing databases created before creator attribution was added:
+alter table public.invitations
+  add column if not exists created_by_email text;
 
 create index if not exists invitations_code_idx on public.invitations (code);
 
@@ -73,11 +80,24 @@ create policy "authenticated manage invitations"
 -- so the table itself is never publicly enumerable.
 create or replace function public.get_invitation(p_code text)
 returns public.invitations
-language sql
+language plpgsql
 security definer
 set search_path = public
 as $$
-  select * from public.invitations where code = p_code limit 1;
+declare
+  rec public.invitations;
+begin
+  select * into rec from public.invitations where code = p_code limit 1;
+  -- Return null (not a row of nulls) for an unknown code, so callers can tell
+  -- "no such invitation" from a real one.
+  if not found then
+    return null;
+  end if;
+  -- created_by_email is admin-only: guests call this as anon, so never expose
+  -- the couple's login email on the public invitation page.
+  rec.created_by_email := null;
+  return rec;
+end;
 $$;
 
 grant execute on function public.get_invitation(text) to anon, authenticated;

@@ -209,6 +209,7 @@ export async function createInvitation(
     first_name: type === "single" ? null : v.first_name || null,
     last_name: type === "single" ? null : v.last_name,
     max_party: MAX_PARTY[type],
+    created_by_email: user.email ?? null,
   });
 
   if (error) {

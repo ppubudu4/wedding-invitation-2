@@ -11,6 +11,9 @@ export type Invitation = {
   first_name: string | null;
   last_name: string | null;
   max_party: number;
+  // Admin-only: stripped by get_invitation(), so it is always null on the
+  // public invitation page.
+  created_by_email: string | null;
 };
 
 /** View passed to the public invitation page. */

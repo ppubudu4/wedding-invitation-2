@@ -1555,6 +1555,43 @@ table.rsvps tr:last-child td { border-bottom: none; }
   font-style: italic;
 }
 
+/* One more column than the shared .rsvps min-width allows for. */
+table.invites {
+  min-width: 820px;
+}
+
+.invite-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.invite-filter select {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--color-ink);
+  background: var(--color-paper-3);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  padding: 0.45em 0.7em;
+  max-width: 15rem;
+}
+
+.invite-filter select:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-focus) 26%, transparent);
+}
+
 /* Invitations table -> cards on mobile, so the Copy/WhatsApp buttons are
    reachable without scrolling the table sideways. */
 @media (max-width: 640px) {
