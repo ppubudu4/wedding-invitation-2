@@ -4,6 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import { deleteInvitation } from "@/app/actions";
 import { whatsappShareUrl } from "@/lib/share";
 import WhatsAppIcon from "./WhatsAppIcon";
+import {
+  CREATOR_ALL,
+  CREATOR_UNATTRIBUTED,
+  creatorOptions,
+  creatorValues,
+  matchesCreator,
+  resolveCreator,
+} from "./creator-filter";
 
 export type InviteRowView = {
   id: string;
@@ -16,10 +24,6 @@ export type InviteRowView = {
   party: number | null;
   createdBy: string | null;
 };
-
-const ALL = "all";
-/** Filter value for invitations created before creator attribution existed. */
-const UNATTRIBUTED = "__none__";
 
 function ShareActions({
   code,
@@ -65,34 +69,17 @@ export default function InviteList({
 }: {
   readonly items: InviteRowView[];
 }) {
-  const [creator, setCreator] = useState<string>(ALL);
+  const [creator, setCreator] = useState<string>(CREATOR_ALL);
 
-  const creators = useMemo(() => {
-    const emails = new Set<string>();
-    let hasUnattributed = false;
-    for (const it of items) {
-      if (it.createdBy) emails.add(it.createdBy);
-      else hasUnattributed = true;
-    }
-    return { emails: [...emails].sort((a, b) => a.localeCompare(b)), hasUnattributed };
-  }, [items]);
+  const options = useMemo(
+    () => creatorOptions(items.map((it) => it.createdBy)),
+    [items]
+  );
+  const values = creatorValues(options);
+  const selected = resolveCreator(creator, values);
 
-  // Deleting a creator's last invitation would otherwise leave the list stuck
-  // on an option that no longer exists.
-  const isSelectable =
-    creator === ALL ||
-    (creator === UNATTRIBUTED && creators.hasUnattributed) ||
-    creators.emails.includes(creator);
-  const selected = isSelectable ? creator : ALL;
-
-  const visible = items.filter((it) => {
-    if (selected === ALL) return true;
-    if (selected === UNATTRIBUTED) return !it.createdBy;
-    return it.createdBy === selected;
-  });
-
+  const visible = items.filter((it) => matchesCreator(selected, it.createdBy));
   const respondedCount = items.filter((it) => it.responded).length;
-  const optionCount = creators.emails.length + (creators.hasUnattributed ? 1 : 0);
 
   return (
     <>
@@ -103,21 +90,21 @@ export default function InviteList({
             {respondedCount}/{items.length} responded
           </span>
         </h2>
-        {optionCount > 1 && (
-          <label className="invite-filter">
+        {values.length > 1 && (
+          <label className="admin-filter">
             <span>Created by</span>
             <select
               value={selected}
               onChange={(e) => setCreator(e.target.value)}
             >
-              <option value={ALL}>All</option>
-              {creators.emails.map((email) => (
+              <option value={CREATOR_ALL}>All</option>
+              {options.emails.map((email) => (
                 <option key={email} value={email}>
                   {email}
                 </option>
               ))}
-              {creators.hasUnattributed && (
-                <option value={UNATTRIBUTED}>Unattributed</option>
+              {options.hasUnattributed && (
+                <option value={CREATOR_UNATTRIBUTED}>Unattributed</option>
               )}
             </select>
           </label>

@@ -5,6 +5,10 @@ import SignOutButton from "@/components/admin/SignOutButton";
 import ExportCsvButton from "@/components/admin/ExportCsvButton";
 import CreateInvite from "@/components/admin/CreateInvite";
 import InviteList, { type InviteRowView } from "@/components/admin/InviteList";
+import ResponseList, {
+  type InvitedSeats,
+  type ResponseRowView,
+} from "@/components/admin/ResponseList";
 import WishModeration from "@/components/admin/WishModeration";
 import { inviteGreeting, type Invitation } from "@/lib/invitations";
 
@@ -32,10 +36,6 @@ export default async function AdminDashboard() {
   const wishes = (wishData ?? []) as Wish[];
   const pendingWishes = wishes.filter((w) => !w.approved).length;
 
-  const attendingRows = rows.filter((r) => r.attending);
-  const decliningCount = rows.length - attendingRows.length;
-  const headcount = attendingRows.reduce((sum, r) => sum + (r.party_size || 1), 0);
-
   // Latest response per invitation, for the invitation status column.
   const responseByInvite = new Map<string, Rsvp>();
   for (const r of rows) {
@@ -60,6 +60,28 @@ export default async function AdminDashboard() {
       createdBy: inv.created_by_email,
     };
   });
+
+  const inviteById = new Map(invites.map((inv) => [inv.id, inv]));
+
+  const responseRows: ResponseRowView[] = rows.map((r) => {
+    const inv = r.invitation_id ? inviteById.get(r.invitation_id) : undefined;
+    return {
+      id: r.id,
+      name: r.name,
+      attending: r.attending,
+      partySize: r.party_size,
+      message: r.message,
+      // Formatted here so the client doesn't re-render it in another locale.
+      submitted: new Date(r.created_at).toLocaleString(),
+      hasInvitation: !!inv,
+      createdBy: inv?.created_by_email ?? null,
+    };
+  });
+
+  const invitedSeats: InvitedSeats[] = invites.map((inv) => ({
+    createdBy: inv.created_by_email,
+    maxParty: inv.max_party,
+  }));
 
   // invitation_id -> first name, for the CSV export column.
   const firstNames: Record<string, string> = {};
@@ -116,64 +138,11 @@ export default async function AdminDashboard() {
 
       {/* Responses */}
       <section className="admin__section">
-        <h2 className="admin__h2">All Responses</h2>
-
-        <div className="stats">
-          <div className="stat">
-            <div className="stat__num">{rows.length}</div>
-            <div className="stat__label">Responses</div>
-          </div>
-          <div className="stat">
-            <div className="stat__num">{attendingRows.length}</div>
-            <div className="stat__label">Accepting</div>
-          </div>
-          <div className="stat">
-            <div className="stat__num">{decliningCount}</div>
-            <div className="stat__label">Declining</div>
-          </div>
-          <div className="stat">
-            <div className="stat__num">{headcount}</div>
-            <div className="stat__label">Total guests</div>
-          </div>
-        </div>
-
-        {error ? (
-          <p className="admin__empty">
-            Could not load responses. Check that the database schema has been
-            applied.
-          </p>
-        ) : rows.length === 0 ? (
-          <p className="admin__empty">No responses yet.</p>
-        ) : (
-          <div className="table-wrap">
-            <table className="rsvps">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Attending</th>
-                  <th>Guests</th>
-                  <th>Message</th>
-                  <th>Submitted</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr key={r.id}>
-                    <td>{r.name}</td>
-                    <td>
-                      <span className={`pill ${r.attending ? "pill--yes" : "pill--no"}`}>
-                        {r.attending ? "Yes" : "No"}
-                      </span>
-                    </td>
-                    <td>{r.attending ? r.party_size : "—"}</td>
-                    <td>{r.message || "—"}</td>
-                    <td>{new Date(r.created_at).toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <ResponseList
+          rows={responseRows}
+          seats={invitedSeats}
+          hasError={!!error}
+        />
       </section>
     </main>
   );

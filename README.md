@@ -66,6 +66,8 @@ All copy lives in [`src/lib/wedding.ts`](src/lib/wedding.ts) — names, families
 
 Guest submits the form → a Next.js Server Action validates it (zod) → inserted into the Supabase `rsvps` table → the couple sees it in `/admin`. Responses are private: RLS blocks anonymous reads, so only a signed-in admin can see them.
 
+**All Responses** summarises the guest list across five tiles: **Invited** (the seats offered — every invitation's maximum party size added up), **Responses**, **Accepting**, **Declining**, and **Total guests** (the headcount actually coming). A **Created by** dropdown filters the whole section to one admin's invitations, tiles included, so each admin can read their own numbers. Responses sent from the public RSVP form have no invitation behind them and group under *Direct RSVP*; they count as 0 invited, since nobody was invited to produce them.
+
 ## Inviting guests (personalized links)
 
 From the admin dashboard you can create a personalized invitation for each guest and share its unique link (`/i/<code>`). Pick one of three types — the greeting on the invitation adapts automatically:

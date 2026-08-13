@@ -1560,7 +1560,7 @@ table.invites {
   min-width: 820px;
 }
 
-.invite-filter {
+.admin-filter {
   display: inline-flex;
   align-items: center;
   gap: var(--space-sm);
@@ -1572,7 +1572,7 @@ table.invites {
   color: var(--color-muted);
 }
 
-.invite-filter select {
+.admin-filter select {
   font-family: var(--font-body);
   font-size: var(--text-sm);
   font-weight: 400;
@@ -1586,7 +1586,7 @@ table.invites {
   max-width: 15rem;
 }
 
-.invite-filter select:focus-visible {
+.admin-filter select:focus-visible {
   outline: none;
   border-color: var(--color-accent);
   box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-focus) 26%, transparent);
