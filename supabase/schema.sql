@@ -50,7 +50,7 @@ create table if not exists public.invitations (
   code        text not null unique,
   invite_type text not null check (invite_type in ('single', 'couple', 'family')),
   guest_name  text,            -- single: the guest's full name
-  title       text,            -- family: 'Mr' | 'Mrs'
+  title       text,            -- couple / family: 'Mr' | 'Mrs' | 'Mr & Mrs'
   first_name  text,            -- family: head-of-family first name
   last_name   text,            -- couple / family: surname
   max_party   int not null default 1 check (max_party between 1 and 30),

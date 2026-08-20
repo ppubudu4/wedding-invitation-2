@@ -1,5 +1,14 @@
 export type InviteType = "single" | "couple" | "family";
 
+/** Titles an admin can tick for a couple or family invitation. */
+export const TITLES = ["Mr", "Mrs"] as const;
+export type Title = (typeof TITLES)[number];
+
+/** The ticked titles, always in a fixed order: "Mr", "Mrs" or "Mr & Mrs". */
+export function joinTitles(titles: readonly string[]): string {
+  return TITLES.filter((t) => titles.includes(t)).join(" & ");
+}
+
 /** Row shape as stored in Supabase. */
 export type Invitation = {
   id: string;
@@ -30,8 +39,8 @@ export type InviteView = {
 /**
  * The personalized name shown on the invitation:
  *  - single → the guest's name              e.g. "Nimal Perera"
- *  - couple → "Mr & Mrs {Last name}"        e.g. "Mr & Mrs Silva"
- *  - family → "{Mr|Mrs}. {First} {Last} & Family"
+ *  - couple → "{title} {Last name}"         e.g. "Mr & Mrs Silva", "Mrs Silva"
+ *  - family → "{title} {First} {Last} & Family"
  */
 export function inviteGreeting(inv: {
   invite_type: InviteType;
@@ -43,13 +52,21 @@ export function inviteGreeting(inv: {
   switch (inv.invite_type) {
     case "single":
       return (inv.guest_name ?? "").trim() || "Our Cherished Guest";
-    case "couple":
-      return `Mr & Mrs ${(inv.last_name ?? "").trim()}`.trim();
+    case "couple": {
+      // Couples created before titles were selectable have no title stored,
+      // so they keep the original "Mr & Mrs" wording.
+      const t = (inv.title ?? "").trim() || "Mr & Mrs";
+      return `${t} ${(inv.last_name ?? "").trim()}`.trim();
+    }
     case "family": {
       const t = (inv.title ?? "").trim();
       const first = (inv.first_name ?? "").trim();
       const last = (inv.last_name ?? "").trim();
-      const name = [t ? `${t}.` : "", first, last].filter(Boolean).join(" ");
+      // A lone title takes a full stop ("Mr. Kamal"); a pair reads better
+      // without one ("Mr & Mrs Kamal").
+      const name = [t.includes("&") ? t : t && `${t}.`, first, last]
+        .filter(Boolean)
+        .join(" ");
       return `${name} & Family`.trim();
     }
     default:

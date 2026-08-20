@@ -901,7 +901,8 @@ svg {
   gap: var(--space-xs);
 }
 
-.field label {
+.field label,
+.field__label {
   font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.14em;
@@ -994,6 +995,22 @@ svg {
 .choice__opt input:focus-visible + span {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
+}
+
+/* Mr / Mrs toggles: natural-case pills sized to their label, so they sit
+   beside the name fields instead of stretching the row. */
+.choice--titles {
+  gap: var(--space-sm);
+}
+
+.choice--titles .choice__opt {
+  flex: 0 0 auto;
+}
+
+.choice--titles .choice__opt span {
+  text-transform: none;
+  letter-spacing: normal;
+  padding: 0.75em 1.2em;
 }
 
 .rsvp__submit {

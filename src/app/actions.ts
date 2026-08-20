@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   generateInviteCode,
   inviteGreeting,
+  joinTitles,
   type InviteType,
 } from "@/lib/invitations";
 
@@ -133,13 +134,17 @@ const inviteSchema = z
   .object({
     invite_type: z.enum(["single", "couple", "family"]),
     guest_name: z.string().trim().max(120).optional().or(z.literal("")),
-    title: z.enum(["Mr", "Mrs"]).optional().or(z.literal("")),
+    // Checkbox group: none, one or both of "Mr" / "Mrs".
+    title: z.array(z.enum(["Mr", "Mrs"])).max(2),
     first_name: z.string().trim().max(80).optional().or(z.literal("")),
     last_name: z.string().trim().max(80).optional().or(z.literal("")),
   })
   .superRefine((val, ctx) => {
     if (val.invite_type === "single" && !val.guest_name) {
       ctx.addIssue({ code: "custom", path: ["guest_name"], message: "Enter the guest's name." });
+    }
+    if (val.invite_type !== "single" && val.title.length === 0) {
+      ctx.addIssue({ code: "custom", path: ["title"], message: "Tick at least one title." });
     }
     if (val.invite_type === "couple") {
       if (!val.last_name) {
@@ -150,7 +155,6 @@ const inviteSchema = z
       }
     }
     if (val.invite_type === "family") {
-      if (!val.title) ctx.addIssue({ code: "custom", path: ["title"], message: "Choose a title." });
       if (!val.first_name) ctx.addIssue({ code: "custom", path: ["first_name"], message: "Enter a first name." });
       if (!val.last_name) ctx.addIssue({ code: "custom", path: ["last_name"], message: "Enter a surname." });
     }
@@ -182,7 +186,7 @@ export async function createInvitation(
   const parsed = inviteSchema.safeParse({
     invite_type: formData.get("invite_type"),
     guest_name: formData.get("guest_name") ?? "",
-    title: formData.get("title") ?? "",
+    title: formData.getAll("title"),
     first_name: formData.get("first_name") ?? "",
     last_name: formData.get("last_name") ?? "",
   });
@@ -199,18 +203,20 @@ export async function createInvitation(
   const type = v.invite_type;
   const code = generateInviteCode();
 
-  const { error } = await supabase.from("invitations").insert({
+  const row = {
     code,
     invite_type: type,
     guest_name: type === "single" ? v.guest_name : null,
-    title: type === "family" ? v.title || null : null,
+    title: type === "single" ? null : joinTitles(v.title),
     // first_name is the head-of-family name for family invites, and an
     // admin-only identifier for couples (never shown publicly).
     first_name: type === "single" ? null : v.first_name || null,
     last_name: type === "single" ? null : v.last_name,
     max_party: MAX_PARTY[type],
     created_by_email: user.email ?? null,
-  });
+  };
+
+  const { error } = await supabase.from("invitations").insert(row);
 
   if (error) {
     return {
@@ -223,7 +229,7 @@ export async function createInvitation(
   return {
     status: "success",
     code,
-    greeting: inviteGreeting(v),
+    greeting: inviteGreeting(row),
     message: "Invitation created.",
   };
 }

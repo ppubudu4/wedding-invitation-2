@@ -3,7 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { createInvitation, type InviteState } from "@/app/actions";
-import type { InviteType } from "@/lib/invitations";
+import {
+  inviteGreeting,
+  joinTitles,
+  TITLES,
+  type InviteType,
+  type Title,
+} from "@/lib/invitations";
 import { whatsappShareUrl } from "@/lib/share";
 import WhatsAppIcon from "./WhatsAppIcon";
 
@@ -18,9 +24,42 @@ function Submit() {
   );
 }
 
+/** Mr / Mrs toggles — tick either one or both. */
+function TitleChoice({
+  titles,
+  onToggle,
+}: {
+  readonly titles: readonly Title[];
+  readonly onToggle: (t: Title) => void;
+}) {
+  return (
+    <div className="field">
+      <span className="field__label">Title</span>
+      <div className="choice choice--titles" role="group" aria-label="Title">
+        {TITLES.map((t) => (
+          <label className="choice__opt" key={t}>
+            <input
+              type="checkbox"
+              name="title"
+              value={t}
+              checked={titles.includes(t)}
+              onChange={() => onToggle(t)}
+            />
+            <span>{t}</span>
+          </label>
+        ))}
+      </div>
+      {titles.length === 0 && (
+        <span className="field__error">Tick at least one title.</span>
+      )}
+    </div>
+  );
+}
+
 export default function CreateInvite() {
   const [state, formAction] = useFormState(createInvitation, initial);
   const [type, setType] = useState<InviteType>("single");
+  const [titles, setTitles] = useState<Title[]>(["Mr", "Mrs"]);
   const [origin, setOrigin] = useState("");
   const [copied, setCopied] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -37,6 +76,22 @@ export default function CreateInvite() {
     state.status === "success" && state.code
       ? `${origin}/i/${state.code}`
       : "";
+
+  function toggleTitle(t: Title) {
+    setTitles((prev) =>
+      prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]
+    );
+  }
+
+  // Live previews of the wording the ticked titles produce.
+  const title = joinTitles(titles);
+  const couplePreview = [title, "Silva"].filter(Boolean).join(" ");
+  const familyPreview = inviteGreeting({
+    invite_type: "family",
+    title,
+    first_name: "Kamal",
+    last_name: "Fernando",
+  });
 
   async function copy() {
     if (!link) return;
@@ -75,10 +130,11 @@ export default function CreateInvite() {
 
         {type === "couple" && (
           <>
+            <TitleChoice titles={titles} onToggle={toggleTitle} />
             <div className="field">
               <label htmlFor="last_name_couple">Surname</label>
               <input id="last_name_couple" name="last_name" type="text" placeholder="e.g. Silva" />
-              <span className="field__hint">Shows as “Mr &amp; Mrs Silva”.</span>
+              <span className="field__hint">Shows as “{couplePreview}”.</span>
             </div>
             <div className="field">
               <label htmlFor="first_name_couple">First name (for your reference)</label>
@@ -93,13 +149,7 @@ export default function CreateInvite() {
 
         {type === "family" && (
           <div className="invite-family">
-            <div className="field">
-              <label htmlFor="title">Title</label>
-              <select id="title" name="title" defaultValue="Mr">
-                <option value="Mr">Mr</option>
-                <option value="Mrs">Mrs</option>
-              </select>
-            </div>
+            <TitleChoice titles={titles} onToggle={toggleTitle} />
             <div className="field">
               <label htmlFor="first_name">First name</label>
               <input id="first_name" name="first_name" type="text" placeholder="e.g. Kamal" />
@@ -108,7 +158,7 @@ export default function CreateInvite() {
               <label htmlFor="last_name_family">Surname</label>
               <input id="last_name_family" name="last_name" type="text" placeholder="e.g. Fernando" />
             </div>
-            <span className="field__hint">Shows as “Mr. Kamal Fernando &amp; Family”.</span>
+            <span className="field__hint">Shows as “{familyPreview}”.</span>
           </div>
         )}
 
