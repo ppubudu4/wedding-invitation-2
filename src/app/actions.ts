@@ -143,9 +143,6 @@ const inviteSchema = z
     if (val.invite_type === "single" && !val.guest_name) {
       ctx.addIssue({ code: "custom", path: ["guest_name"], message: "Enter the guest's name." });
     }
-    if (val.invite_type !== "single" && val.title.length === 0) {
-      ctx.addIssue({ code: "custom", path: ["title"], message: "Tick at least one title." });
-    }
     if (val.invite_type === "couple") {
       if (!val.last_name) {
         ctx.addIssue({ code: "custom", path: ["last_name"], message: "Enter the couple's surname." });

@@ -53,10 +53,10 @@ export function inviteGreeting(inv: {
     case "single":
       return (inv.guest_name ?? "").trim() || "Our Cherished Guest";
     case "couple": {
-      // Couples created before titles were selectable have no title stored,
-      // so they keep the original "Mr & Mrs" wording.
-      const t = (inv.title ?? "").trim() || "Mr & Mrs";
-      return `${t} ${(inv.last_name ?? "").trim()}`.trim();
+      // null means the row predates selectable titles, so it keeps the original
+      // "Mr & Mrs" wording; "" means the admin deliberately ticked neither.
+      const t = (inv.title ?? "Mr & Mrs").trim();
+      return [t, (inv.last_name ?? "").trim()].filter(Boolean).join(" ");
     }
     case "family": {
       const t = (inv.title ?? "").trim();

@@ -24,7 +24,7 @@ function Submit() {
   );
 }
 
-/** Mr / Mrs toggles — tick either one or both. */
+/** Mr / Mrs toggles — optional: tick either, both, or neither. */
 function TitleChoice({
   titles,
   onToggle,
@@ -34,7 +34,7 @@ function TitleChoice({
 }) {
   return (
     <div className="field">
-      <span className="field__label">Title</span>
+      <span className="field__label">Title (optional)</span>
       <div className="choice choice--titles" role="group" aria-label="Title">
         {TITLES.map((t) => (
           <label className="choice__opt" key={t}>
@@ -49,9 +49,6 @@ function TitleChoice({
           </label>
         ))}
       </div>
-      {titles.length === 0 && (
-        <span className="field__error">Tick at least one title.</span>
-      )}
     </div>
   );
 }
